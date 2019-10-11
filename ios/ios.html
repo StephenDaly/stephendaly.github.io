@@ -29,4 +29,29 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 </body>
+<script>
+
+function IsSafari() {
+	if (navigator.userAgent.indexOf("Safari") == -1) {
+		return false;
+	}
+	return navigator.userAgent.indexOf("Chrome") == -1;
+}
+
+function App(label) {
+	this.label = label;
+	this.Display = function() {
+		if (IsSafari()) {
+			return navigator.userAgent;
+		}
+		return "<h3>" + this.label + "</h3>";
+	};
+}
+
+var apps = new Object()
+
+apps.RMK = new App("RM Kiosk");
+
+document.body.innerHTML = apps.RMK.Display();
+</script>
 </html>
