@@ -5,29 +5,6 @@
 <title>Restaurant Manager iOS Apps</title>
 </head>
 <body>
-<h2>Restaurant Manager iOS Apps</h2>
-<h3>RM Kiosk</h3>
-<table width="300" border="2">
-  <tbody>
-    <tr>
-      <td><table width="300" border="0">
-        <tbody>
-          <tr>
-            <td><strong>RM Kiosk 2019.09260</strong></td>
-          </tr>
-          <tr>
-            <td><em>Latest Version</em></td>
-          </tr>
-          <tr>
-            <td>Supports iOS 8-12</td>
-          </tr>
-        </tbody>
-      </table></td>
-    </tr>
-  </tbody>
-</table>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
 </body>
 <script>
 
@@ -41,6 +18,7 @@ const DEVICE_OTHER = 0;
 const DEVICE_IPAD = 1;
 const DEVICE_IPOD = 2;
 const DEVICE_IPHONE = 3;
+const DEVICE_MACINTOSH = 4;
 const DEVICE_TESTING = DEVICE_OTHER;
 
 var deviceType;
@@ -52,16 +30,21 @@ function determineDeviceType() {
 		return DEVICE_IPOD;
 	if (userAgentString.indexOf("iPhone") != -1)
 		return DEVICE_IPHONE;
+	if (userAgentString.indexOf("Macintosh") != -1)
+		return DEVICE_MACINTOSH;
 	return DEVICE_TESTING;
 }
 
 function deviceTypeName() {
-	if (deviceType == DEVICE_IPAD)
-		return "iPad";
-	if (deviceType == DEVICE_IPOD)
-		return "iPod";
-	if (deviceType == DEVICE_IPHONE)
-		return "iPhone";
+	switch (deviceType) {
+		case DEVICE_IPAD:
+		case DEVICE_MACINTOSH:
+			return "iPad";
+		case DEVICE_IPOD:
+			return "iPod";
+		case DEVICE_IPHONE:
+			return "iPhone";
+	}
 	return "Other"
 }
 
@@ -74,7 +57,15 @@ const FORM_IPOD = DEVICE_IPOD;
 var deviceForm;
 
 function determineDeviceForm() {
-	return (deviceType == DEVICE_IPHONE) ? FORM_IPOD : deviceType;
+	switch (deviceType) {
+		case DEVICE_IPAD:
+		case DEVICE_MACINTOSH:
+			return FORM_IPAD;
+		case DEVICE_IPHONE:
+		case DEVICE_IPAD:
+			return FORM_IPOD;
+	}
+	return FORM_OTHER;
 }
 
 //	iosVersion--version of ios
@@ -82,6 +73,8 @@ function determineDeviceForm() {
 var iosVersion;
 
 function determineVersion() {
+	if (deviceType == DEVICE_MACINTOSH)
+		return [13, 0, 0];
     var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
     return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
 }
@@ -113,10 +106,6 @@ function formatVersion(version) {
 	return result;
 }
 
-//	function buildRMKiosk()
-//
-//	Returns section for RM Kiosk
-
 function buildRMKiosk() {
 	var result =  "<h3>RM Kiosk</h3>";
 	if (deviceForm == FORM_IPAD) {
@@ -129,6 +118,32 @@ function buildRMKiosk() {
 		result += wrapInTable(300, 2, versions);
 	} else {
 		result += makeAParagraph("RM Kiosk only runs on an iPad");
+	}
+	return result;
+}
+
+function buildRMTablet() {
+	var result =  "<h3>RM Tablet</h3>";
+	if (deviceForm == FORM_IPAD) {
+		if (iosVersion[0] < 8)
+			return result + makeAParagraph("RM Tablet requires iOS version 8 or later");
+		const link = "itms-services://?action=download-manifest&url=https://s3.amazonaws.com/dealerdownloads/IOS/pub/rmt_manifest.plist";
+		var versions = buildTableEntry("RM Tablet", "2019.09260", "Current version", 8, 99, link);
+		result += wrapInTable(300, 2, versions);
+	} else {
+		result += makeAParagraph("RM Tablet only runs on an iPad");
+	}
+	return result;
+}
+
+function buildRMHandheld() {
+	var result =  "<h3>RM Handheld</h3>";
+	if (iosVersion[0] >= 8) {
+		const link = "itms-services://?action=download-manifest&url=https://s3.amazonaws.com/dealerdownloads/IOS/pub/rmhh_manifest.plist";
+		var versions = buildTableEntry("RM Handheld", "2019.09261", "Current version", 8, 99, link);
+		result += wrapInTable(300, 2, versions);
+	} else {
+		result += makeAParagraph("RM Handheld requires iOS version 8 or later");
 	}
 	return result;
 }
@@ -184,7 +199,9 @@ function buildPage() {
 	console.log(iosVersion);
 	var result = "<h2>Restaurant Manager iOS Apps</h2>";
 	result += "<h4>Device: " + deviceTypeName() + ". iOS Version: " + formatVersion(iosVersion) + "</h4>";
+	result += buildRMHandheld();
 	result += buildRMKiosk();
+	result += buildRMTablet();
 	return result;
 }
 
