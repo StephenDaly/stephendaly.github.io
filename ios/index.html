@@ -127,7 +127,7 @@ function buildRMTablet() {
 	if (deviceForm == FORM_IPAD) {
 		if (iosVersion[0] < 8)
 			return result + makeAParagraph("RM Tablet requires iOS version 8 or later");
-		const link = "itms-services://?action=download-manifest&url=https://s3.amazonaws.com/dealerdownloads/IOS/pub/rmt_manifest.plist";
+		const link = "itms-services://?action=download-manifest&url=https://s3.amazonaws.com/dealerdownloads/IOS/Current/rmt_manifest.plist";
 		var versions = buildTableEntry("RM Tablet", "2019.09260", "Current version", 8, 99, link);
 		result += wrapInTable(300, 2, versions);
 	} else {
